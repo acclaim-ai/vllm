@@ -51,6 +51,7 @@ async def serve_http(
     app: FastAPI,
     sock: socket.socket | None,
     enable_ssl_refresh: bool = False,
+    enable_http2: bool = False,
     **uvicorn_kwargs: Any,
 ):
     """
@@ -91,6 +92,13 @@ async def serve_http(
         h11_max_incomplete_event_size = H11_MAX_INCOMPLETE_EVENT_SIZE_DEFAULT
     if h11_max_header_count is None:
         h11_max_header_count = H11_MAX_HEADER_COUNT_DEFAULT
+
+    if enable_http2:
+        if uvicorn_kwargs.get("http", "auto") not in ("auto", "zttp"):
+            raise ValueError(
+                "--enable-http2 requires --uvicorn-http-protocol zttp/auto"
+            )
+        uvicorn_kwargs.update(http="zttp", http2=True)
 
     config = uvicorn.Config(app, **uvicorn_kwargs)
     # Set header limits

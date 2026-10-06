@@ -273,6 +273,11 @@ class FrontendArgs(BaseFrontendArgs):
     """Log level for uvicorn."""
     disable_uvicorn_access_log: bool = False
     """Disable uvicorn access log."""
+    uvicorn_http_protocol: Literal["auto", "h11", "httptools", "zttp"] = "auto"
+    """Uvicorn HTTP parser. Select zttp for an HTTP/1.1 comparison with HTTP/2."""
+    enable_http2: bool = False
+    """Enable experimental Uvicorn HTTP/2 with zttp. Requires Uvicorn >= 0.54.0
+    and zttp >= 0.0.34. HTTPS negotiates HTTP/2 or HTTP/1.1 using ALPN."""
     disable_access_log_for_endpoints: str | None = None
     """Comma-separated list of endpoint paths to exclude from uvicorn access
     logs. This is useful to reduce log noise from high-frequency endpoints

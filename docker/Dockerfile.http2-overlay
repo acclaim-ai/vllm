@@ -1,0 +1,20 @@
+# syntax=docker/dockerfile:1
+# Layer over an existing, digest-pinned vLLM 0.29 cached runtime.
+ARG VLLM_CACHED_IMAGE
+FROM ${VLLM_CACHED_IMAGE}
+
+USER root
+# Do not resolve or upgrade the inference dependency graph.
+RUN python3 -m pip install --no-cache-dir --no-deps --only-binary=:all: \
+      "uvicorn==0.54.0" "zttp==0.0.34"
+
+COPY vllm/entrypoints/launchers/cli_args.py /tmp/http2-overlay/cli_args.py
+COPY vllm/entrypoints/launchers/launcher.py /tmp/http2-overlay/launcher.py
+COPY vllm/entrypoints/launchers/api_server/entry.py /tmp/http2-overlay/api_entry.py
+COPY vllm/entrypoints/launchers/render/entry.py /tmp/http2-overlay/render_entry.py
+COPY examples/others/http2/install_overlay.py /tmp/http2-overlay/install_overlay.py
+RUN python3 /tmp/http2-overlay/install_overlay.py \
+    && rm -rf /tmp/http2-overlay
+
+# Inherit runtime environment, cache labels and startup command. No certificate
+# or private key is built into the image; mount experiment credentials at runtime.

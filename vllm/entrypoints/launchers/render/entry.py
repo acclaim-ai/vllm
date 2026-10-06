@@ -45,6 +45,8 @@ async def build_and_serve_renderer(
         app,
         sock=sock,
         enable_ssl_refresh=args.enable_ssl_refresh,
+        enable_http2=args.enable_http2,
+        http=args.uvicorn_http_protocol,
         host=args.host,
         port=args.port,
         log_level=args.uvicorn_log_level,

@@ -41,6 +41,13 @@ def serve_parser():
 
 
 ### Test config parsing
+@pytest.mark.parametrize("enabled", [False, True])
+def test_http2_is_opt_in(serve_parser, enabled):
+    args = serve_parser.parse_args(["--enable-http2"] if enabled else [])
+    assert args.enable_http2 is enabled
+    assert args.uvicorn_http_protocol == "auto"
+
+
 def test_config_arg_parsing(serve_parser, cli_config_file):
     args = serve_parser.parse_args([])
     assert args.port == 8000
